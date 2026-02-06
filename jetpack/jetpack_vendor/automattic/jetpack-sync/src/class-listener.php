@@ -92,9 +92,6 @@ class Listener {
 		add_action( 'jetpack_activate_module', $handler );
 		add_action( 'jetpack_deactivate_module', $handler );
 
-		// Jetpack Upgrade.
-		add_action( 'updating_jetpack_version', $handler, 10, 2 );
-
 		// Send periodic checksum.
 		add_action( 'jetpack_sync_checksum', $handler );
 	}
@@ -277,6 +274,21 @@ class Listener {
 
 		if ( ! ( new Connection_Manager() )->is_connected() ) {
 			// Don't enqueue an action if the site is disconnected.
+			return;
+		}
+
+		// Skip enqueueing any Sync action when triggered by Jetpack CRM Woo Sync background job to avoid periodic noise.
+		if (
+			( function_exists( 'doing_action' ) && doing_action( 'jpcrm_woosync_sync' ) )
+			|| defined( 'jpcrm_woosync_running' )
+			|| defined( 'jpcrm_woosync_cron_running' )
+		) {
+			return;
+		}
+
+		// Skip enqueueing if current action is blacklisted.
+		$sync_actions_blacklist = Settings::get_setting( 'sync_actions_blacklist' );
+		if ( is_array( $sync_actions_blacklist ) && in_array( $current_filter, $sync_actions_blacklist, true ) ) {
 			return;
 		}
 

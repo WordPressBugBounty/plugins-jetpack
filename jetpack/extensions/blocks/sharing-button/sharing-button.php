@@ -85,7 +85,7 @@ function render_block( $attr, $content, $block ) {
 
 	$accessible_name = sprintf(
 		/* translators: %s refers to a string representation of sharing service, e.g. Facebook */
-		esc_html__( 'Click to share on %s', 'jetpack' ),
+		esc_html__( 'Share on %s', 'jetpack' ),
 		esc_html( $title )
 	);
 
@@ -203,9 +203,7 @@ function sharing_process_requests() {
 		}
 
 		$service = new $services[ ( $service_name ) ]( $service_name, array() ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( $service ) {
-			$service->process_request( $post, $_POST ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
-		}
+		$service->process_request( $post, $_POST ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
 	}
 }
 
